@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import _uniqueId from "lodash/uniqueId";
+import Node from "./node";
 
-function App() {
+const initialState = {
+  id: _uniqueId("prefix-"),
+  type: "Main",
+  children: [
+    {
+      id: _uniqueId("prefix-"),
+      type: "Column",
+      children: [
+        {
+          id: _uniqueId("prefix-"),
+          type: "DraggableCard"
+        },
+        {
+          id: _uniqueId("prefix-"),
+          type: "DraggableCard"
+        }
+      ]
+    },
+    {
+      id: _uniqueId("prefix-"),
+      type: "Column",
+      children: []
+    }
+  ]
+};
+
+export default function App() {
+  const [nodeData, setNodeData] = useState(initialState);
+  const [draggedItem, setDraggedItem] = useState();
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Node
+      nodeData={nodeData}
+      setNodeData={setNodeData}
+      draggedItem={draggedItem}
+      setDraggedItem={setDraggedItem}
+    />
   );
 }
-
-export default App;
