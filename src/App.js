@@ -36,7 +36,7 @@ const initialState = {
 }
 
 
-function removeDraggedItem(state, draggedItem, i){
+function removeDraggedItem(state, draggedItem){
   let filtered = [];
   let children = [];
   if (state.children){
@@ -45,7 +45,7 @@ function removeDraggedItem(state, draggedItem, i){
     });
     if (filtered.length === state.children.length && state.children.length !== 0){  
       children = state.children.map((child) => {
-        return removeDraggedItem(child, draggedItem, i+1);
+        return removeDraggedItem(child, draggedItem);
       })
     } else {
       return {...state, children: filtered};
@@ -54,13 +54,34 @@ function removeDraggedItem(state, draggedItem, i){
   return {...state, children: children}
 }
 
+function addDraggedItem(state, location, draggedItem){
+  if(state.children){
+    if (location.length === 1){
+      const children = [...state.children, draggedItem];
+      const newState = {...state, children: children};
+      return newState;
+    } else {
+      const newLocation = location.filter((item) => item !== state.id);
+      const children = state.children.map((child) => {
+        if (child.id === newLocation[0]){
+          return addDraggedItem(child, newLocation, draggedItem)
+        }
+        return child;
+      });
+      return {...state, children: children}
+    }
+  } else {
+    return state;
+  }
+}
+
 function nodeTreeReducer(state, action){
   switch (action.type){
     case 'dragStart':
       return {...state, ...action.payload};
     case 'drop': 
-      const newState = removeDraggedItem(state, state.draggedItem, 0);
-      console.log(state, newState);
+      const itemRemovedState = removeDraggedItem(state, state.draggedItem);
+      const newState = addDraggedItem(itemRemovedState, action.payload.path, state.draggedItem);
       return newState;
     default:
         return state;
@@ -74,7 +95,7 @@ export default function App() {
   return (
     <NodeTreeContext.Provider value={rootNode}> 
       <NodeTreeDispatchContext.Provider value={dispatch}>
-        <Node node={rootNode}/>
+        <Node node={rootNode} path={[rootNode.id]}/>
       </NodeTreeDispatchContext.Provider>
     </NodeTreeContext.Provider>
   );

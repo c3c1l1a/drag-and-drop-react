@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import {NodeTreeDispatchContext} from './NodeTreeContext'; 
 
-export default function Column({ children, node }) {
+export default function Column({ children, node, path }) {
   const dispatch = useContext(NodeTreeDispatchContext); 
 
   const onDragOver = (e) => {
@@ -11,7 +11,7 @@ export default function Column({ children, node }) {
   return (
     <div className="column" 
       onDragOver={(e) => onDragOver(e)} 
-      onDrop={() => dispatch({type: 'drop', payload: node})}
+      onDrop={() => dispatch({type: 'drop', payload: {...node, path: path}})}
     >{children}</div>
   );
 }

@@ -7,22 +7,23 @@ import useReducer from './useReducer';
 
 import "./styles.css";
 
-export default function Node({ node }) {
-
+export default function Node({ node, path }) {
   switch (node.UIBlockType) {
     case "Main":
       return (
         <Main>
           {node.children.map((child) => {
-            return <Node key={child.id} node={child}/>
+            const newPath = [...path, child.id];
+            return <Node key={child.id} node={child} path={newPath}/>
           })}
         </Main>
       );
     case "Column":
       return (
-        <Column node={node}>
+        <Column node={node} path={path}>
           {node.children.map((child) => {
-            return <Node key={child.id} node={child}/>
+            const newPath = [...path, child.id];
+            return <Node key={child.id} node={child} path={newPath}/>
           })}
         </Column>
       );
