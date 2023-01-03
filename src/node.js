@@ -29,7 +29,7 @@ export default function Node({ node, path }) {
       );
     case "DraggableCard":
       return (
-        <DragableCard node={node}/>
+        <DragableCard node={node} path={path}/>
       );
     default:
       return <></>;

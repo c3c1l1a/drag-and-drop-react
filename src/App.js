@@ -17,7 +17,7 @@ const initialState = {
           id: _uniqueId("prefix-"),
           item1: "Item 1",
           UIBlockType: "DraggableCard",
-        },
+        }
       ]
     },
     {
@@ -36,22 +36,24 @@ const initialState = {
 }
 
 
-function removeDraggedItem(state, draggedItem){
-  let filtered = [];
-  let children = [];
+function removeDraggedItem(state, location){
   if (state.children){
-    filtered = state.children.filter((child) => {
-      return child !== draggedItem;
-    });
-    if (filtered.length === state.children.length && state.children.length !== 0){  
-      children = state.children.map((child) => {
-        return removeDraggedItem(child, draggedItem);
-      })
+    if (location.length === 2){
+      const children = state.children.filter((child) => child.id !== location[1]);
+      return {...state, children: children};
     } else {
-      return {...state, children: filtered};
+      const newLocation = location.filter((item) => item !== state.id);
+      const children = state.children.map((child) => {
+        if (child.id === newLocation[0]){
+          return removeDraggedItem(child, newLocation);
+        }
+        return child;
+      });
+      return {...state, children: children};
     }
+  } else {
+    return state;
   }
-  return {...state, children: children}
 }
 
 function addDraggedItem(state, location, draggedItem){
@@ -80,7 +82,7 @@ function nodeTreeReducer(state, action){
     case 'dragStart':
       return {...state, ...action.payload};
     case 'drop': 
-      const itemRemovedState = removeDraggedItem(state, state.draggedItem);
+      const itemRemovedState = removeDraggedItem(state, state.draggedItem.path);
       const newState = addDraggedItem(itemRemovedState, action.payload.path, state.draggedItem);
       return newState;
     default:
@@ -89,9 +91,9 @@ function nodeTreeReducer(state, action){
 
 }
 
-
 export default function App() {
   const [rootNode, dispatch] = useReducer(nodeTreeReducer, initialState);
+  
   return (
     <NodeTreeContext.Provider value={rootNode}> 
       <NodeTreeDispatchContext.Provider value={dispatch}>
@@ -101,51 +103,3 @@ export default function App() {
   );
 }
 
-// const draggedNode = {}
-
-// // function addNode(tree, path, node){  
-// //   if (path[0] === tree.id && path.length === 1){
-// //     console.log(tree);
-// //     tree['children'] = tree.children.concat(node);
-// //     return;
-// //   } else if (tree.id === path[0]){
-// //     path.shift();
-// //     tree.children.map((child) => {
-// //       if (child.id === path[0]){
-// //         addNode(child, path, node);
-// //       } else return child;
-// //     });
-// //     return;
-// //   }
-// // }
-
-// // function reducer(state, action){
-// //   const newState = state;
-// //   switch (action.type) {
-// //   case 'dragStart':
-// //     newState['draggedFrom'] = action.payload.path;
-// //     newState['draggedItem'] = action.payload.item;
-// //     return newState;
-// //   case 'drop':
-// //     //addNode(newState.nodeTree, action.payload, state.draggedItem);
-// //     //console.log(newState.nodeTree.children[1]);
-// //     return newState;
-// //   default:
-// //     throw new Error();
-// //   }
-// // }
-
-
-// // function draggedNodeReducer(state, action){
-// //   const newState = state;
-// //   switch (action.type) {
-// //   case 'dragStart':
-// //     return action.payload;
-// //   case 'drop':
-// //     //addNode(newState.nodeTree, action.payload, state.draggedItem);
-// //     //console.log(newState.nodeTree.children[1]);
-// //     return newState;
-// //   default:
-// //     throw new Error();
-// //   }
-// // }
